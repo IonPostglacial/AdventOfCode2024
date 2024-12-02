@@ -16,7 +16,7 @@
           (map #(str/split % #"\s+"))
           (map (fn [ab] [(parse-long (get ab 0))
                          (parse-long (get ab 1))])))
-         (line-seq (reader "day1/input.txt")))))
+         (line-seq (reader "input/day1.txt")))))
 
 (def solution1 
   (reduce + (apply map distance 
