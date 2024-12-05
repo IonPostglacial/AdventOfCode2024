@@ -9,10 +9,20 @@
                  x (range (- (count (first grid)) 3))]
              (into [] (for [i (range 4)]
                         (get-in grid [(+ y i) (+ x i)]))))))
-(reduce + (map match-xmas 
-               (mapcat #(partition 4 1 %)
-                       (-> input
-                           (into (transpose input))
-                           (into (tblr-diagonal input))
-                           (into (tblr-diagonal
-                                  (transpose (mapv str/reverse input))))))))
+(println "Solution 1:"
+         (reduce + (map match-xmas
+                        (mapcat #(partition 4 1 %)
+                                (-> input
+                                    (into (transpose input))
+                                    (into (tblr-diagonal input))
+                                    (into (tblr-diagonal
+                                           (transpose (mapv str/reverse input)))))))))
+(defn match-x-mas [ss] (if (re-find #"(M.S.A.M.S|S.S.A.M.M|S.M.A.S.M|M.M.A.S.S)"
+                                    (apply str ss)) 1 0))
+(defn grid-window [grid]
+  (into [] (for [y (range (- (count grid) 2))
+                 x (range (- (count (first grid)) 2))]
+             (into [] (for [j (range 3) i (range 3)]
+                        (get-in grid [(+ y j) (+ x i)]))))))
+(println "Solution 2:"
+         (reduce + (map match-x-mas (grid-window input))))
