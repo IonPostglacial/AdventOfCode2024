@@ -53,36 +53,30 @@
 (defn in-bounds? [[px py]]
   (and (>= px 0) (>= py 0) (< px width) (< py height)))
 
-(->> (parse-map lines)
-     vals
-     (mapcat pairs)
-     (mapcat #(apply pair-antinodes %)))
+(def solving-1 (comp (mapcat pairs)
+                     (mapcat #(apply pair-antinodes %))
+                     (filter in-bounds?)))
 
 (println "Solution 1:"
-         (count (distinct
-                 (->> (parse-map lines)
-                      vals
-                      (mapcat pairs)
-                      (mapcat #(apply pair-antinodes %))
-                      (filter in-bounds?)))))
+         (count (transduce solving-1 conj #{} (vals (parse-map lines)))))
 
 (defn pair-harmonics [p1 p2]
-  (let [[dx dy] (pair-diff p1 p2)]
-    (concat (loop [harmonics [p1 p2] [px py] p1]
-              (let [next-p [(- px dx) (- py dy)]]
-                (if (in-bounds? next-p)
-                  (recur (conj harmonics next-p) next-p)
-                  harmonics)))
-            (loop [harmonics [] [px py] p1]
-              (let [next-p [(+ px dx) (+ py dy)]]
-                (if (in-bounds? next-p)
-                  (recur (conj harmonics next-p) next-p)
-                  harmonics))))))
+  (let [[dx dy] (pair-diff p1 p2)
+        harmo-p1
+        (loop [harmonics [p1 p2] [px py] p1]
+          (let [next-p [(- px dx) (- py dy)]]
+            (if (in-bounds? next-p)
+              (recur (conj harmonics next-p) next-p)
+              harmonics)))]
+    (loop [harmo-p2 harmo-p1 [px py] p1]
+      (let [next-p [(+ px dx) (+ py dy)]]
+        (if (in-bounds? next-p)
+          (recur (conj harmo-p2 next-p) next-p)
+          harmo-p2)))))
+
+(def solving-2 (comp (mapcat pairs)
+                     (mapcat #(apply pair-harmonics %))
+                     (filter in-bounds?)))
 
 (println "Solution 2:"
-         (count (distinct
-                 (->> (parse-map lines)
-                      vals
-                      (mapcat pairs)
-                      (mapcat #(apply pair-harmonics %))
-                      (filter in-bounds?)))))
+         (count (transduce solving-2 conj #{} (vals (parse-map lines)))))
